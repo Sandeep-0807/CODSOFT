@@ -1,0 +1,74 @@
+#include <iostream>
+#include <cstdlib>   // For rand() and srand()
+#include <ctime>     // For time()
+#include <chrono>    // For time measurement
+#include <windows.h> // For colored output on Windows
+#include <iomanip>   // For setw()
+
+using namespace std;
+using namespace std::chrono;
+
+// Function to set console text color
+void setColor(int color) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
+
+int main() {
+    srand(static_cast<unsigned int>(time(nullptr)));
+    
+    int secretNumber = rand() % 100 + 1;
+    int guess;
+    int attempts = 0;
+    
+    setColor(10); // Bright green
+    cout << "Welcome to the Number Guessing Game!" << endl;
+    cout << "I'm thinking of a number between 1 and 100." << endl;
+    setColor(7); // White
+    
+    auto start = high_resolution_clock::now();
+    
+    do {
+        setColor(11); // Light cyan
+        cout << "Enter your guess: ";
+        setColor(7); // White
+        
+        while (!(cin >> guess)) {
+            setColor(12); // Light red
+            cout << "Invalid input. Please enter a number: ";
+            setColor(7); // White
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        
+        attempts++;
+        
+        if (guess < secretNumber) {
+            setColor(14); // Yellow
+            cout << "Too low! Try again." << endl;
+        } else if (guess > secretNumber) {
+            setColor(12); // Light red
+            cout << "Too high! Try again." << endl;
+        }
+    } while (guess != secretNumber);
+    
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+    
+    setColor(10); // Bright green
+    cout << "\n****************************************************" << endl;
+    cout << "*                                                  *" << endl;
+    cout << "*  CONGRATULATIONS! You guessed the correct number *" << endl;
+    
+    // Create message and center it
+    string message = "*     " + to_string(secretNumber) + " in " + to_string(attempts) + " attempts! *";
+    string padding(52 - message.length(), ' ');
+    cout << "*" << padding.substr(0, padding.length() / 2) << "You guessed " << secretNumber << " in " << attempts << " attempts!" << padding.substr(padding.length() / 2) << "*" << endl;
+    
+    cout << "*              Time taken: " << setw(2) << duration.count() << " seconds              *" << endl;
+    cout << "*                                                  *" << endl;
+    cout << "****************************************************" << endl;
+    setColor(7); // Reset to white
+
+    return 0;
+}
