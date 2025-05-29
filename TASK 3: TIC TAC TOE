@@ -1,0 +1,129 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// ANSI Color Codes
+#define RED     "\033[1;31m"
+#define GREEN   "\033[1;32m"
+#define YELLOW  "\033[1;33m"
+#define BLUE    "\033[1;34m"
+#define RESET   "\033[0m"
+
+char board[3][3];
+char currentPlayer;
+
+// Function to initialize the board
+void initializeBoard() {
+    char start = '1';
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            board[i][j] = start++;
+}
+
+// Function to print the current board
+void displayBoard() {
+    cout << "\n";
+    cout << "-------------\n";
+    for (int i = 0; i < 3; i++) {
+        cout << "| ";
+        for (int j = 0; j < 3; j++) {
+            char cell = board[i][j];
+            if (cell == 'X')
+                cout << RED << cell << RESET << " | ";
+            else if (cell == 'O')
+                cout << BLUE << cell << RESET << " | ";
+            else
+                cout << YELLOW << cell << RESET << " | ";
+        }
+        cout << "\n-------------\n";
+    }
+    cout << "\n";
+}
+
+// Switch players
+void switchPlayer() {
+    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+}
+
+// Make a move
+bool makeMove(int cell) {
+    int row = (cell - 1) / 3;
+    int col = (cell - 1) % 3;
+    if (cell < 1 || cell > 9 || board[row][col] == 'X' || board[row][col] == 'O') {
+        cout << RED << "Invalid move. Try again.\n" << RESET;
+        return false;
+    }
+    board[row][col] = currentPlayer;
+    return true;
+}
+
+// Check for win
+bool checkWin() {
+    // Check rows, columns and diagonals
+    for (int i = 0; i < 3; i++)
+        if ((board[i][0] == currentPlayer && board[i][1] == currentPlayer && board[i][2] == currentPlayer) ||
+            (board[0][i] == currentPlayer && board[1][i] == currentPlayer && board[2][i] == currentPlayer))
+            return true;
+
+    if ((board[0][0] == currentPlayer && board[1][1] == currentPlayer && board[2][2] == currentPlayer) ||
+        (board[0][2] == currentPlayer && board[1][1] == currentPlayer && board[2][0] == currentPlayer))
+        return true;
+
+    return false;
+}
+
+// Check for draw
+bool checkDraw() {
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            if (board[i][j] != 'X' && board[i][j] != 'O')
+                return false;
+    return true;
+}
+
+// Main game loop
+void playGame() {
+    string playAgain;
+    do {
+        initializeBoard();
+        currentPlayer = 'X';
+        bool gameWon = false;
+
+        while (true) {
+            displayBoard();
+            cout << GREEN << "Player " << currentPlayer << ", enter your move (1-9): " << RESET;
+            int move;
+            cin >> move;
+
+            if (!makeMove(move)) continue;
+
+            if (checkWin()) {
+                displayBoard();
+                cout << GREEN << " Congratulations! Player " << currentPlayer << " wins the game! \n" << RESET;
+                gameWon = true;
+                break;
+            }
+
+            if (checkDraw()) {
+                displayBoard();
+                cout << YELLOW << "It's a draw!\n" << RESET;
+                break;
+            }
+
+            switchPlayer();
+        }
+
+        cout << BLUE << "Do you want to play again? (yes/no): " << RESET;
+        cin >> playAgain;
+    } while (playAgain == "yes" || playAgain == "y");
+}
+
+// Entry point
+int main() {
+    cout << GREEN << "===== Welcome to Tic-Tac-Toe Game! =====\n" << RESET;
+    playGame();
+    cout << GREEN << "Thanks for playing! Goodbye!\n" << RESET;
+    return 0;
+}
